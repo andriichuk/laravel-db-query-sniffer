@@ -1,0 +1,85 @@
+{
+    "name": "andriichuk/laravel-db-query-sniffer",
+    "description": "Laravel package to log SQL queries and Redis commands with raw SQL, binary-safe bindings, and slow-query filters",
+    "keywords": [
+        "laravel",
+        "database",
+        "sql",
+        "query",
+        "logger",
+        "logging",
+        "redis",
+        "debug",
+        "sniffer",
+        "query-log",
+        "development"
+    ],
+    "homepage": "https://github.com/andriichuk/laravel-db-query-sniffer",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Serhii Andriichuk",
+            "email": "andriichuk29@gmail.com",
+            "homepage": "https://github.com/andriichuk",
+            "role": "Developer"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/andriichuk/laravel-db-query-sniffer/issues",
+        "source": "https://github.com/andriichuk/laravel-db-query-sniffer"
+    },
+    "require": {
+        "php": "^8.3",
+        "illuminate/database": "^11.0||^12.0||^13.0",
+        "illuminate/redis": "^11.0||^12.0||^13.0",
+        "illuminate/support": "^11.0||^12.0||^13.0",
+        "spatie/laravel-package-tools": "^1.16"
+    },
+    "require-dev": {
+        "laravel/pint": "^1.14",
+        "nunomaduro/collision": "^8.9",
+        "larastan/larastan": "^3.0",
+        "orchestra/testbench": "^11.0.0||^10.0.0||^9.0.0",
+        "pestphp/pest": "^4.0",
+        "pestphp/pest-plugin-arch": "^4.0",
+        "pestphp/pest-plugin-laravel": "^4.0",
+        "phpstan/extension-installer": "^1.4",
+        "phpstan/phpstan-deprecation-rules": "^2.0",
+        "phpstan/phpstan-phpunit": "^2.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Andriichuk\\DbQuerySniffer\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Andriichuk\\DbQuerySniffer\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "post-autoload-dump": "@composer run prepare",
+        "prepare": "@php vendor/bin/testbench package:discover --ansi",
+        "analyse": "vendor/bin/phpstan analyse --memory-limit=512M",
+        "test": "vendor/bin/pest",
+        "test-coverage": "vendor/bin/pest --coverage",
+        "format": "vendor/bin/pint",
+        "cs-check": "vendor/bin/pint --test"
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true,
+            "phpstan/extension-installer": true
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Andriichuk\\DbQuerySniffer\\DbQuerySnifferServiceProvider"
+            ]
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}
