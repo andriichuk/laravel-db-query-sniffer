@@ -38,10 +38,15 @@ return [
         'include_connection' => true,
 
         /*
-         * Only log queries that take at least this many milliseconds.
-         * Set to null to log every query.
+         * When true, only queries slower than slow_ms are logged.
+         * When false (default), every query is logged.
          */
-        'slow_ms' => null,
+        'slow_only' => false,
+
+        /*
+         * Minimum duration in milliseconds when slow_only is enabled.
+         */
+        'slow_ms' => 100,
     ],
 
     /*
@@ -55,10 +60,15 @@ return [
         'message' => 'Redis Command:',
 
         /*
-         * Only log Redis commands that take at least this many milliseconds.
-         * Set to null to log every command.
+         * When true, only commands slower than slow_ms are logged.
+         * When false (default), every command is logged.
          */
-        'slow_ms' => null,
+        'slow_only' => false,
+
+        /*
+         * Minimum duration in milliseconds when slow_only is enabled.
+         */
+        'slow_ms' => 100,
     ],
 
     /*

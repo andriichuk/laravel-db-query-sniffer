@@ -17,9 +17,25 @@ it('does not log redis when sniffer is disabled', function () {
     $listener->handle(makeRedisCommand('GET', ['key'], 1.0));
 });
 
-it('skips redis commands faster than slow_ms threshold', function () {
+it('logs every redis command when slow_only is disabled', function () {
     config()->set('db-query-sniffer.enabled', true);
     config()->set('db-query-sniffer.redis.enabled', true);
+    config()->set('db-query-sniffer.redis.slow_only', false);
+    config()->set('db-query-sniffer.redis.slow_ms', 20);
+    config()->set('db-query-sniffer.redis.channel', 'redis');
+
+    $mockChannel = Mockery::mock();
+    $mockChannel->shouldReceive('info')->once();
+    Log::shouldReceive('channel')->with('redis')->andReturn($mockChannel);
+
+    $listener = new LogRedisCommand(new BindingSanitizer);
+    $listener->handle(makeRedisCommand('GET', ['key'], 5.0));
+});
+
+it('skips redis commands faster than slow_ms when slow_only is enabled', function () {
+    config()->set('db-query-sniffer.enabled', true);
+    config()->set('db-query-sniffer.redis.enabled', true);
+    config()->set('db-query-sniffer.redis.slow_only', true);
     config()->set('db-query-sniffer.redis.slow_ms', 20);
 
     Log::shouldReceive('channel')->never();
@@ -33,7 +49,7 @@ it('logs redis commands with sanitized parameters', function () {
     config()->set('db-query-sniffer.redis.enabled', true);
     config()->set('db-query-sniffer.redis.channel', 'redis');
     config()->set('db-query-sniffer.redis.message', 'Redis Command:');
-    config()->set('db-query-sniffer.redis.slow_ms', null);
+    config()->set('db-query-sniffer.redis.slow_only', false);
 
     $logged = [];
     $mockChannel = Mockery::mock();

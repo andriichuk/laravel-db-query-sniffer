@@ -54,11 +54,13 @@ Add dedicated log channels in `config/logging.php` (recommended):
 | `environments` | Environments where listeners are registered (`['*']` = all) | `['local']` |
 | `database.enabled` | Log SQL queries | `true` |
 | `database.channel` | Log channel for SQL | `db` |
-| `database.slow_ms` | Only log queries ≥ N ms (`null` = all) | `null` |
+| `database.slow_only` | When true, only log queries ≥ `slow_ms` | `false` |
+| `database.slow_ms` | Minimum query duration (ms) when `slow_only` is enabled | `100` |
 | `database.include_connection` | Include connection name in context | `true` |
 | `redis.enabled` | Log Redis commands | `true` |
 | `redis.channel` | Log channel for Redis | `redis` |
-| `redis.slow_ms` | Only log commands ≥ N ms (`null` = all) | `null` |
+| `redis.slow_only` | When true, only log commands ≥ `slow_ms` | `false` |
+| `redis.slow_ms` | Minimum command duration (ms) when `slow_only` is enabled | `100` |
 | `bindings.max_string_length` | Truncate string bindings (`null` = no limit) | `null` |
 | `bindings.binary_as_base64` | Include base64 for binary bindings | `true` |
 

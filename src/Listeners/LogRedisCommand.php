@@ -20,9 +20,9 @@ final class LogRedisCommand
             return;
         }
 
-        $slowMs = config('db-query-sniffer.redis.slow_ms');
-
-        if ($slowMs !== null && $event->time < (float) $slowMs) {
+        if (config('db-query-sniffer.redis.slow_only')
+            && $event->time < (float) config('db-query-sniffer.redis.slow_ms', 100)
+        ) {
             return;
         }
 
