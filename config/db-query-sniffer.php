@@ -17,6 +17,17 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Allowed Environments
+    |--------------------------------------------------------------------------
+    |
+    | Only register listeners in these environments. Use ['*'] for all.
+    | Defaults to local to avoid noisy logs during automated tests.
+    |
+    */
+    'environments' => ['local'],
+
+    /*
+    |--------------------------------------------------------------------------
     | Database Query Logging
     |--------------------------------------------------------------------------
     */

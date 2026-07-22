@@ -27,6 +27,7 @@ abstract class TestCase extends Orchestra
 
         $config = require __DIR__.'/../config/db-query-sniffer.php';
         $config['enabled'] = true;
+        $config['environments'] = ['*'];
         $app['config']->set('db-query-sniffer', $config);
 
         $app['config']->set('logging.channels.db', [

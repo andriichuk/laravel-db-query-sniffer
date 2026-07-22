@@ -38,6 +38,13 @@ final class DbQuerySnifferServiceProvider extends PackageServiceProvider
             return;
         }
 
+        /** @var list<string> $environments */
+        $environments = config('db-query-sniffer.environments', ['local']);
+
+        if ($environments !== ['*'] && ! $this->app->environment($environments)) {
+            return;
+        }
+
         if (config('db-query-sniffer.database.enabled')) {
             Event::listen(QueryExecuted::class, LogDatabaseQuery::class);
         }

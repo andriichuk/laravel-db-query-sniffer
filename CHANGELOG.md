@@ -2,6 +2,12 @@
 
 All notable changes to `laravel-db-query-sniffer` will be documented in this file.
 
+## 0.1.1 - 2026-07-22
+
+### Added
+
+- **`environments`** config (default `['local']`) so listeners are not registered during automated tests unless explicitly allowed (`['*']`).
+
 ## 0.1.0 - 2026-07-22
 
 ### Added
