@@ -51,6 +51,7 @@ Add dedicated log channels in `config/logging.php` (recommended):
 | Key | Description | Default |
 | --- | --- | --- |
 | `enabled` | Master switch | `env('LOG_DB_QUERIES', APP_DEBUG)` |
+| `environments` | Environments where listeners are registered (`['*']` = all) | `['local']` |
 | `database.enabled` | Log SQL queries | `true` |
 | `database.channel` | Log channel for SQL | `db` |
 | `database.slow_ms` | Only log queries ≥ N ms (`null` = all) | `null` |

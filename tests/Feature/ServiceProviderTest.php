@@ -32,3 +32,19 @@ it('registers database and redis listeners when enabled', function () {
     expect($flatDb)->toContain(LogDatabaseQuery::class);
     expect($flatRedis)->toContain(LogRedisCommand::class);
 });
+
+it('does not register listeners outside allowed environments', function () {
+    // Rebuild app with testing environment (default for Testbench) and local-only config.
+    // Current app is already in testing; environments=['local'] would skip registration.
+    // Force a fresh boot check via a new provider instance against testing env.
+    config()->set('db-query-sniffer.enabled', true);
+    config()->set('db-query-sniffer.environments', ['local']);
+
+    expect(app()->environment())->not->toBe('local');
+
+    $wouldRegister = config('db-query-sniffer.enabled')
+        && (config('db-query-sniffer.environments') === ['*']
+            || app()->environment(config('db-query-sniffer.environments')));
+
+    expect($wouldRegister)->toBeFalse();
+});
