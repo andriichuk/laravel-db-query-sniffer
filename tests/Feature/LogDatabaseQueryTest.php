@@ -27,9 +27,26 @@ it('does not log when database logging is disabled', function () {
     $listener->handle(makeQueryExecuted('select 1', [], 1.0));
 });
 
-it('skips queries faster than slow_ms threshold', function () {
+it('logs every query when slow_only is disabled', function () {
     config()->set('db-query-sniffer.enabled', true);
     config()->set('db-query-sniffer.database.enabled', true);
+    config()->set('db-query-sniffer.database.slow_only', false);
+    config()->set('db-query-sniffer.database.slow_ms', 50);
+    config()->set('db-query-sniffer.database.channel', 'db');
+    config()->set('db-query-sniffer.database.include_connection', false);
+
+    $mockChannel = Mockery::mock();
+    $mockChannel->shouldReceive('info')->once();
+    Log::shouldReceive('channel')->with('db')->andReturn($mockChannel);
+
+    $listener = new LogDatabaseQuery(new BindingSanitizer);
+    $listener->handle(makeQueryExecuted('select 1', [], 10.0));
+});
+
+it('skips queries faster than slow_ms when slow_only is enabled', function () {
+    config()->set('db-query-sniffer.enabled', true);
+    config()->set('db-query-sniffer.database.enabled', true);
+    config()->set('db-query-sniffer.database.slow_only', true);
     config()->set('db-query-sniffer.database.slow_ms', 50);
 
     Log::shouldReceive('channel')->never();
@@ -44,7 +61,7 @@ it('logs raw sql with connection and time', function () {
     config()->set('db-query-sniffer.database.channel', 'db');
     config()->set('db-query-sniffer.database.message', 'SQL Query:');
     config()->set('db-query-sniffer.database.include_connection', true);
-    config()->set('db-query-sniffer.database.slow_ms', null);
+    config()->set('db-query-sniffer.database.slow_only', false);
 
     $logged = [];
     $mockChannel = Mockery::mock();

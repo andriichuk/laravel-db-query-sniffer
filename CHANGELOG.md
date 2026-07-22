@@ -2,6 +2,16 @@
 
 All notable changes to `laravel-db-query-sniffer` will be documented in this file.
 
+## 0.1.2 - 2026-07-22
+
+### Added
+
+- **`database.slow_only`** / **`redis.slow_only`** (default `false`) — when disabled, every query/command is logged; when enabled, only those ≥ `slow_ms` are logged.
+
+### Changed
+
+- **`slow_ms`** defaults to `100` and is only applied when the matching `slow_only` option is enabled.
+
 ## 0.1.1 - 2026-07-22
 
 ### Added

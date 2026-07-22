@@ -21,9 +21,9 @@ final class LogDatabaseQuery
             return;
         }
 
-        $slowMs = config('db-query-sniffer.database.slow_ms');
-
-        if ($slowMs !== null && $query->time < (float) $slowMs) {
+        if (config('db-query-sniffer.database.slow_only')
+            && $query->time < (float) config('db-query-sniffer.database.slow_ms', 100)
+        ) {
             return;
         }
 
