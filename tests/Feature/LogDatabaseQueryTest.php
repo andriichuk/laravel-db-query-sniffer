@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Andriichuk\DbQuerySniffer\BindingSanitizer;
 use Andriichuk\DbQuerySniffer\Listeners\LogDatabaseQuery;
+use Andriichuk\DbQuerySniffer\QueryLogger;
 use Illuminate\Database\Connection;
 use Illuminate\Database\Events\QueryExecuted;
 use Illuminate\Support\Facades\Log;
@@ -13,7 +14,7 @@ it('does not log when sniffer is disabled', function () {
 
     Log::shouldReceive('channel')->never();
 
-    $listener = new LogDatabaseQuery(new BindingSanitizer);
+    $listener = new LogDatabaseQuery(new BindingSanitizer, app(QueryLogger::class));
     $listener->handle(makeQueryExecuted('select 1', [], 1.0));
 });
 
@@ -23,7 +24,7 @@ it('does not log when database logging is disabled', function () {
 
     Log::shouldReceive('channel')->never();
 
-    $listener = new LogDatabaseQuery(new BindingSanitizer);
+    $listener = new LogDatabaseQuery(new BindingSanitizer, app(QueryLogger::class));
     $listener->handle(makeQueryExecuted('select 1', [], 1.0));
 });
 
@@ -36,10 +37,10 @@ it('logs every query when slow_only is disabled', function () {
     config()->set('db-query-sniffer.database.include_connection', false);
 
     $mockChannel = Mockery::mock();
-    $mockChannel->shouldReceive('info')->once();
+    $mockChannel->shouldReceive('log')->once();
     Log::shouldReceive('channel')->with('db')->andReturn($mockChannel);
 
-    $listener = new LogDatabaseQuery(new BindingSanitizer);
+    $listener = new LogDatabaseQuery(new BindingSanitizer, app(QueryLogger::class));
     $listener->handle(makeQueryExecuted('select 1', [], 10.0));
 });
 
@@ -51,7 +52,7 @@ it('skips queries faster than slow_ms when slow_only is enabled', function () {
 
     Log::shouldReceive('channel')->never();
 
-    $listener = new LogDatabaseQuery(new BindingSanitizer);
+    $listener = new LogDatabaseQuery(new BindingSanitizer, app(QueryLogger::class));
     $listener->handle(makeQueryExecuted('select 1', [], 10.0));
 });
 
@@ -65,8 +66,8 @@ it('logs raw sql with connection and time', function () {
 
     $logged = [];
     $mockChannel = Mockery::mock();
-    $mockChannel->shouldReceive('info')->once()->withArgs(function (string $message, array $context) use (&$logged): bool {
-        $logged = ['message' => $message, 'context' => $context];
+    $mockChannel->shouldReceive('log')->once()->withArgs(function (string $level, string $message, array $context) use (&$logged): bool {
+        $logged = ['level' => $level, 'message' => $message, 'context' => $context];
 
         return true;
     });
@@ -79,7 +80,7 @@ it('logs raw sql with connection and time', function () {
         rawSql: 'select * from users where id = 1',
     );
 
-    $listener = new LogDatabaseQuery(new BindingSanitizer);
+    $listener = new LogDatabaseQuery(new BindingSanitizer, app(QueryLogger::class));
     $listener->handle($event);
 
     expect($logged['message'])->toBe('SQL Query:');
@@ -96,8 +97,8 @@ it('falls back to sanitized bindings when raw sql fails', function () {
 
     $logged = [];
     $mockChannel = Mockery::mock();
-    $mockChannel->shouldReceive('warning')->once()->withArgs(function (string $message, array $context) use (&$logged): bool {
-        $logged = ['message' => $message, 'context' => $context];
+    $mockChannel->shouldReceive('log')->once()->withArgs(function (string $level, string $message, array $context) use (&$logged): bool {
+        $logged = ['level' => $level, 'message' => $message, 'context' => $context];
 
         return true;
     });
@@ -111,7 +112,7 @@ it('falls back to sanitized bindings when raw sql fails', function () {
         rawSqlException: new RuntimeException('cannot substitute'),
     );
 
-    $listener = new LogDatabaseQuery(new BindingSanitizer(binaryAsBase64: false));
+    $listener = new LogDatabaseQuery(new BindingSanitizer(binaryAsBase64: false), app(QueryLogger::class));
     $listener->handle($event);
 
     expect($logged['message'])->toBe('Failed to build raw SQL query string. Logging fallback payload.');
@@ -148,3 +149,26 @@ function makeQueryExecuted(
 
     return new QueryExecuted($sql, $bindings, $time, $connection);
 }
+
+it('honors the database slow threshold boundary', function (float $duration, bool $expected) {
+    config()->set('db-query-sniffer.database.slow_only', true);
+    config()->set('db-query-sniffer.database.slow_ms', 50);
+    $channel = Mockery::mock();
+    if ($expected) {
+        Log::shouldReceive('channel')->once()->andReturn($channel);
+        $channel->shouldReceive('log')->once();
+    } else {
+        Log::shouldReceive('channel')->never();
+    }
+
+    app(LogDatabaseQuery::class)->handle(makeQueryExecuted('select 1', [], $duration));
+})->with([[49.99, false], [50.0, true], [50.01, true]]);
+
+it('rejects an invalid database slow threshold', function () {
+    config()->set('db-query-sniffer.database.slow_only', true);
+    config()->set('db-query-sniffer.database.slow_ms', -1);
+    $duration = 1.0;
+
+    expect(fn () => app(LogDatabaseQuery::class)->handle(makeQueryExecuted('select 1', [], $duration)))
+        ->toThrow(InvalidArgumentException::class);
+});

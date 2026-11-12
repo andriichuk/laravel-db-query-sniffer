@@ -5,14 +5,17 @@ declare(strict_types=1);
 namespace Andriichuk\DbQuerySniffer\Listeners;
 
 use Andriichuk\DbQuerySniffer\BindingSanitizer;
+use Andriichuk\DbQuerySniffer\QueryLogger;
 use Illuminate\Database\Events\QueryExecuted;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Config;
+use InvalidArgumentException;
 use Throwable;
 
 final class LogDatabaseQuery
 {
     public function __construct(
         private readonly BindingSanitizer $bindingSanitizer,
+        private readonly QueryLogger $logger,
     ) {}
 
     public function handle(QueryExecuted $query): void
@@ -21,43 +24,43 @@ final class LogDatabaseQuery
             return;
         }
 
-        if (config('db-query-sniffer.database.slow_only')
-            && $query->time < (float) config('db-query-sniffer.database.slow_ms', 100)
-        ) {
-            return;
+        if (config('db-query-sniffer.database.slow_only')) {
+            $slowMs = config('db-query-sniffer.database.slow_ms', 100);
+
+            if (! is_numeric($slowMs) || (float) $slowMs < 0) {
+                throw new InvalidArgumentException('The slow query threshold must be a non-negative number.');
+            }
+
+            if ($query->time < (float) $slowMs) {
+                return;
+            }
         }
 
-        $channel = (string) config('db-query-sniffer.database.channel', 'db');
-        $message = (string) config('db-query-sniffer.database.message', 'SQL Query:');
+        $channel = Config::string('db-query-sniffer.database.channel', 'db');
+        $message = Config::string('db-query-sniffer.database.message', 'SQL Query:');
         $includeConnection = (bool) config('db-query-sniffer.database.include_connection', true);
 
-        try {
-            $context = [
-                'query' => $query->toRawSql(),
-                'time' => $query->time.'ms',
-            ];
+        $context = [
+            'time' => $query->time.'ms',
+            'duration_ms' => (float) $query->time,
+        ];
 
-            if ($includeConnection) {
-                $context['connection'] = $query->connectionName;
-            }
-
-            Log::channel($channel)->info($message, $context);
-        } catch (Throwable $exception) {
-            $context = [
-                'error' => $exception->getMessage(),
-                'sql' => $query->sql,
-                'bindings' => $this->bindingSanitizer->sanitize($query->bindings),
-                'time' => $query->time.'ms',
-            ];
-
-            if ($includeConnection) {
-                $context['connection'] = $query->connectionName;
-            }
-
-            Log::channel($channel)->warning(
-                'Failed to build raw SQL query string. Logging fallback payload.',
-                $context,
-            );
+        if ($includeConnection) {
+            $context['connection'] = $query->connectionName;
         }
+
+        $level = 'info';
+
+        try {
+            $context['query'] = $query->toRawSql();
+        } catch (Throwable $exception) {
+            $level = 'warning';
+            $message = 'Failed to build raw SQL query string. Logging fallback payload.';
+            $context['error'] = $exception->getMessage();
+            $context['sql'] = $query->sql;
+            $context['bindings'] = $this->bindingSanitizer->sanitize($query->bindings);
+        }
+
+        $this->logger->write($channel, $message, $context, $level);
     }
 }

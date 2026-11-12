@@ -48,3 +48,26 @@ it('sanitizes nested arrays recursively', function () {
     expect($sanitizer->sanitize([['nested' => $binary]]))
         ->toBe([['nested' => '[binary:3 bytes]']]);
 });
+
+it('handles invalid UTF-8 strings without NUL bytes as binary', function () {
+    $binary = "\xff\xfe";
+    $result = (new BindingSanitizer)->sanitize(['value' => $binary]);
+
+    expect($result['value'])->toBe('[binary:2 bytes;base64='.base64_encode($binary).']')
+        ->and(json_encode($result, JSON_THROW_ON_ERROR))->toBeString();
+});
+
+it('preserves multibyte characters when truncating', function () {
+    expect((new BindingSanitizer(maxStringLength: 2))->sanitize(['Привіт']))
+        ->toBe(['Пр…']);
+});
+
+it('supports a zero string limit and preserves associative keys', function () {
+    expect((new BindingSanitizer(maxStringLength: 0))->sanitize(['key' => 'text', 'empty' => '']))
+        ->toBe(['key' => '…', 'empty' => '']);
+});
+
+it('rejects negative string limits', function () {
+    expect(fn () => new BindingSanitizer(maxStringLength: -1))
+        ->toThrow(InvalidArgumentException::class);
+});

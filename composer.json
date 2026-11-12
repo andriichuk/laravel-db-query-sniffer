@@ -29,10 +29,16 @@
         "source": "https://github.com/andriichuk/laravel-db-query-sniffer"
     },
     "require": {
-        "php": "^8.3",
+        "ext-mbstring": "*",
+        "illuminate/config": "^11.0 || ^12.0 || ^13.0",
+        "illuminate/contracts": "^11.0 || ^12.0 || ^13.0",
         "illuminate/database": "^11.0||^12.0||^13.0",
+        "illuminate/events": "^11.0 || ^12.0 || ^13.0",
+        "illuminate/http": "^11.0 || ^12.0 || ^13.0",
+        "illuminate/log": "^11.0 || ^12.0 || ^13.0",
         "illuminate/redis": "^11.0||^12.0||^13.0",
         "illuminate/support": "^11.0||^12.0||^13.0",
+        "php": "^8.3",
         "spatie/laravel-package-tools": "^1.16"
     },
     "require-dev": {
@@ -40,9 +46,9 @@
         "nunomaduro/collision": "^8.9",
         "larastan/larastan": "^3.0",
         "orchestra/testbench": "^11.0.0||^10.0.0||^9.0.0",
-        "pestphp/pest": "^4.0",
-        "pestphp/pest-plugin-arch": "^4.0",
-        "pestphp/pest-plugin-laravel": "^4.0",
+        "pestphp/pest": "^3.8 || ^4.0",
+        "pestphp/pest-plugin-arch": "^3.0 || ^4.0",
+        "pestphp/pest-plugin-laravel": "^3.0 || ^4.0",
         "phpstan/extension-installer": "^1.4",
         "phpstan/phpstan-deprecation-rules": "^2.0",
         "phpstan/phpstan-phpunit": "^2.0"
@@ -60,11 +66,16 @@
     "scripts": {
         "post-autoload-dump": "@composer run prepare",
         "prepare": "@php vendor/bin/testbench package:discover --ansi",
-        "analyse": "vendor/bin/phpstan analyse --memory-limit=512M",
+        "analyse": "vendor/bin/phpstan analyse --memory-limit=512M --no-progress",
         "test": "vendor/bin/pest",
         "test-coverage": "vendor/bin/pest --coverage",
         "format": "vendor/bin/pint",
-        "cs-check": "vendor/bin/pint --test"
+        "cs-check": "vendor/bin/pint --test",
+        "check": [
+            "@cs-check",
+            "@analyse",
+            "@test"
+        ]
     },
     "config": {
         "sort-packages": true,
