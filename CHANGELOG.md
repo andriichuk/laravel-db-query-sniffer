@@ -20,6 +20,7 @@ All notable changes to `laravel-db-query-sniffer` will be documented in this fil
 
 ### Changed
 
+- Support targets maintained Laravel 12 and 13; Laravel 11 is no longer included.
 - CI checks formatting without modifying repository contents.
 - Listener constructors now receive the internal query logger.
 

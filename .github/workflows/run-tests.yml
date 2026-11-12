@@ -20,8 +20,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - {os: ubuntu-latest, php: '8.3', laravel: '11.*', testbench: '9.*', pest: '3.*'}
-          - {os: ubuntu-latest, php: '8.4', laravel: '11.*', testbench: '9.*', pest: '3.*'}
           - {os: ubuntu-latest, php: '8.3', laravel: '12.*', testbench: '10.*', pest: '4.*'}
           - {os: ubuntu-latest, php: '8.4', laravel: '12.*', testbench: '10.*', pest: '4.*'}
           - {os: ubuntu-latest, php: '8.5', laravel: '12.*', testbench: '10.*', pest: '4.*'}
@@ -36,7 +34,7 @@ jobs:
       - uses: shivammathur/setup-php@d52fc211a0436f8839a587b3b5b8efddab4744ea # v2
         with:
           php-version: ${{ matrix.php }}
-          extensions: mbstring, pdo_sqlite
+          extensions: mbstring, pdo_sqlite, fileinfo, dom, xml, xmlwriter, tokenizer, zip
           coverage: none
       - name: Select compatible framework and test dependencies
         run: >-
@@ -61,7 +59,7 @@ jobs:
       - uses: shivammathur/setup-php@d52fc211a0436f8839a587b3b5b8efddab4744ea # v2
         with:
           php-version: '8.4'
-          extensions: mbstring, pdo_sqlite
+          extensions: mbstring, pdo_sqlite, fileinfo, dom, xml, xmlwriter, tokenizer, zip
           coverage: pcov
       - uses: ramsey/composer-install@65e4f84970763564f46a70b8a54b90d033b3bdda # 4.0.0
       - name: Enforce source coverage

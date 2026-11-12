@@ -9,7 +9,7 @@ Log Laravel SQL queries and Redis commands to rotating files, including queries 
 ## Requirements
 
 - PHP 8.3 or later, with `mbstring`.
-- Laravel 11, 12, or 13.
+- Laravel 12 or 13.
 
 ## Installation
 
@@ -97,7 +97,7 @@ composer install
 composer check
 ```
 
-`composer check` runs Pint, maximum-level PHPStan without a baseline, and the test suite. CI checks Linux and Windows, PHP 8.3 through 8.5, and Laravel 11 through 13 using compatible Pest/Testbench versions. A separate coverage job enforces at least 95% source line coverage.
+`composer check` runs Pint, maximum-level PHPStan without a baseline, and the test suite. CI checks Linux and Windows, PHP 8.3 through 8.5, and Laravel 12 and 13 using compatible Pest/Testbench versions. A separate coverage job enforces at least 95% source line coverage.
 
 ```bash
 composer test-coverage -- --min=95
