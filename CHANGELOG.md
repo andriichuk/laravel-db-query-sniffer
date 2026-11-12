@@ -2,6 +2,18 @@
 
 All notable changes to `laravel-db-query-sniffer` will be documented in this file.
 
+## 0.2.2 - 2026-11-12
+
+### Added
+
+- `DB_QUERY_LOG_ENABLED` controls SQL capture independently and defaults to `true`.
+- `REDIS_COMMAND_LOG_ENABLED` controls Redis capture independently and defaults to `false`.
+- Environment configuration tests cover defaults, overrides, and actual SQL/Redis capture.
+
+### Changed
+
+- Redis command logging is now opt-in. Existing published configuration must be updated to use the environment switches.
+
 ## 0.2.1 - 2026-11-12
 
 ### Changed

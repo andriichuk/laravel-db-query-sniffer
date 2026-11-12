@@ -30,7 +30,11 @@ The service provider is auto-discovered. Logging is restricted to the `local` en
 
 ```dotenv
 LOG_DB_QUERIES=true
+DB_QUERY_LOG_ENABLED=true
+REDIS_COMMAND_LOG_ENABLED=false
 ```
+
+SQL query logging is enabled by default when the master switch allows capture. Redis command logging is opt-in: set `REDIS_COMMAND_LOG_ENABLED=true` to enable it. Both switches still respect the master switch and allowed environments.
 
 The package supplies `db` and `redis` daily log channels with two-day retention when those channels do not already exist. Existing application channels are preserved. Files are written under `storage/logs/db-YYYY-MM-DD.log` and `storage/logs/redis-YYYY-MM-DD.log`.
 
@@ -66,7 +70,7 @@ Context is cleared when middleware exits, including exception paths. Console com
 
 ## Log slow SQL queries and Redis commands
 
-Every successfully executed Laravel SQL query and Redis command is logged by default. To focus on slow database queries, set `database.slow_only` to `true` in the published configuration and choose a `database.slow_ms` threshold in milliseconds. Use `redis.slow_only` and `redis.slow_ms` independently for slow Redis commands.
+Every successfully executed Laravel SQL query is logged by default when capture is enabled. Redis commands are recorded after opting in with `REDIS_COMMAND_LOG_ENABLED=true`. To focus on slow database queries, set `database.slow_only` to `true` in the published configuration and choose a `database.slow_ms` threshold in milliseconds. Use `redis.slow_only` and `redis.slow_ms` independently for slow Redis commands.
 
 ## SQL and Redis logging configuration
 
@@ -75,13 +79,13 @@ Every successfully executed Laravel SQL query and Redis command is logged by def
 | `enabled` | `LOG_DB_QUERIES`, falling back to `APP_DEBUG` | Master switch |
 | `environments` | `['local']` | Allowed environments; `['*']` allows all |
 | `request_context` | `true` | HTTP correlation fields and response header |
-| `database.enabled` | `true` | Capture SQL queries |
+| `database.enabled` | `true` | Capture SQL queries; override with `DB_QUERY_LOG_ENABLED` |
 | `database.channel` | `db` | Override with `DB_QUERY_LOG_CHANNEL` |
 | `database.message` | `SQL Query:` | Log message |
 | `database.include_connection` | `true` | Include the connection name |
 | `database.slow_only` | `false` | Capture every query unless enabled |
 | `database.slow_ms` | `100` | Inclusive minimum duration when `slow_only` is enabled |
-| `redis.enabled` | `true` | Capture Redis commands |
+| `redis.enabled` | `false` | Capture Redis commands; opt in with `REDIS_COMMAND_LOG_ENABLED` |
 | `redis.channel` | `redis` | Override with `REDIS_COMMAND_LOG_CHANNEL` |
 | `redis.message` | `Redis Command:` | Log message |
 | `redis.slow_only` | `false` | Capture every command unless enabled |
@@ -101,7 +105,7 @@ Both SQL and Redis records include the original `time` string and a numeric `dur
 
 ## Replacing inline listeners
 
-Remove the application's old SQL and Redis listeners and their binding sanitizer after installing this package, otherwise queries will be logged twice. Keep any application log channel configuration you want to preserve. The `LOG_DB_QUERIES` environment switch continues to work; the old `logging.log_db_queries` configuration entry is no longer used.
+Remove the application's old SQL and Redis listeners and their binding sanitizer after installing this package, otherwise queries will be logged twice. Keep any application log channel configuration you want to preserve. If you previously published the package configuration, update its `database.enabled` and `redis.enabled` entries to use the new environment switches; an existing published configuration overrides package defaults. The `LOG_DB_QUERIES` environment switch continues to work; the old `logging.log_db_queries` configuration entry is no longer used.
 
 ## Development
 

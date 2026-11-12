@@ -35,7 +35,7 @@ return [
     |--------------------------------------------------------------------------
     */
     'database' => [
-        'enabled' => true,
+        'enabled' => env('DB_QUERY_LOG_ENABLED', true),
         'channel' => env('DB_QUERY_LOG_CHANNEL', 'db'),
         'message' => 'SQL Query:',
         'include_connection' => true,
@@ -58,7 +58,7 @@ return [
     |--------------------------------------------------------------------------
     */
     'redis' => [
-        'enabled' => true,
+        'enabled' => env('REDIS_COMMAND_LOG_ENABLED', false),
         'channel' => env('REDIS_COMMAND_LOG_CHANNEL', 'redis'),
         'message' => 'Redis Command:',
 
