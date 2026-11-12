@@ -1,17 +1,26 @@
-# Laravel DB Query Sniffer
+# Laravel DB Query Sniffer: SQL Query and Redis Logger
 
 [![Tests](https://github.com/andriichuk/laravel-db-query-sniffer/actions/workflows/run-tests.yml/badge.svg)](https://github.com/andriichuk/laravel-db-query-sniffer/actions/workflows/run-tests.yml)
 [![PHPStan](https://github.com/andriichuk/laravel-db-query-sniffer/actions/workflows/phpstan.yml/badge.svg)](https://github.com/andriichuk/laravel-db-query-sniffer/actions/workflows/phpstan.yml)
 [![Latest version](https://img.shields.io/packagist/v/andriichuk/laravel-db-query-sniffer.svg)](https://packagist.org/packages/andriichuk/laravel-db-query-sniffer)
 
-Log Laravel SQL queries and Redis commands to rotating files, including queries made by JSON APIs, mobile clients, Postman, console commands, and queue jobs. No dashboard, migrations, or additional database tables are required.
+**Laravel DB Query Sniffer** is a Laravel SQL query logger and Redis command logger for local API debugging. Log Eloquent, query builder, and raw SQL queries to rotating files with request IDs, execution timings, and optional slow-query filters.
+
+Capture queries from JSON APIs, mobile clients, Postman, browser requests, console commands, and queue jobs. No dashboard, migrations, or additional database tables are required.
+
+## What you can debug
+
+- **SQL query logging:** inspect executed SQL, bound values, connection names, and execution times.
+- **Laravel API debugging:** group queries by request ID, HTTP method, and URL path.
+- **Redis command logging:** inspect commands and sanitized parameters alongside SQL logs.
+- **Slow query logging:** record only SQL queries or Redis commands that meet a configurable duration threshold.
 
 ## Requirements
 
 - PHP 8.3 or later, with `mbstring`.
 - Laravel 12 or 13.
 
-## Installation
+## Install the Laravel query logger
 
 ```bash
 composer require andriichuk/laravel-db-query-sniffer --dev
@@ -31,7 +40,7 @@ Configuration publishing is optional:
 php artisan vendor:publish --tag=db-query-sniffer-config
 ```
 
-## API requests
+## Debug SQL queries from Laravel API requests
 
 SQL and Redis events are captured server-side, independently of the response format or client. Global middleware adds these fields while handling an HTTP request:
 
@@ -55,7 +64,11 @@ The response includes `X-Query-Sniffer-Request-Id`, allowing you to find its rec
 
 Context is cleared when middleware exits, including exception paths. Console commands and asynchronous queue jobs are logged without HTTP fields. Queries during application bootstrap, request termination, or streamed response callbacks are still captured but may not have HTTP context.
 
-## Configuration
+## Log slow SQL queries and Redis commands
+
+Every successfully executed Laravel SQL query and Redis command is logged by default. To focus on slow database queries, set `database.slow_only` to `true` in the published configuration and choose a `database.slow_ms` threshold in milliseconds. Use `redis.slow_only` and `redis.slow_ms` independently for slow Redis commands.
+
+## SQL and Redis logging configuration
 
 | Key | Default | Purpose |
 | --- | --- | --- |
