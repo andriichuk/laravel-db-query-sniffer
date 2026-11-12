@@ -2,6 +2,13 @@
 
 All notable changes to `laravel-db-query-sniffer` will be documented in this file.
 
+## 0.2.1 - 2026-11-12
+
+### Changed
+
+- Clarified package descriptions, Composer keywords, and README headings for Laravel SQL query logging, API debugging, Redis command logging, and slow-query filtering.
+- Aligned GitHub repository topics and package links with the documented features.
+
 ## 0.2.0 - 2026-11-12
 
 ### Added
