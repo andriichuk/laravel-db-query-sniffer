@@ -2,6 +2,28 @@
 
 All notable changes to `laravel-db-query-sniffer` will be documented in this file.
 
+## 0.2.0 - 2026-11-12
+
+### Added
+
+- Automatic API request correlation with generated request IDs, HTTP methods, paths, and a response header.
+- Numeric `duration_ms` fields alongside the existing timing strings.
+- Default rotating SQL and Redis file channels that preserve existing application configuration.
+- Reentrancy protection and isolated log handler failures.
+- Real HTTP/SQLite integration tests, maximum-level static analysis, compatible CI test dependencies, and a 95% source coverage gate.
+
+### Fixed
+
+- Invalid UTF-8 bindings without NUL bytes are now handled as binary.
+- Invalid binding length and slow-query threshold settings are rejected explicitly.
+- Environment gating tests now exercise provider registration.
+
+### Changed
+
+- Support targets maintained Laravel 12 and 13; Laravel 11 is no longer included.
+- CI checks formatting without modifying repository contents.
+- Listener constructors now receive the internal query logger.
+
 ## 0.1.2 - 2026-07-22
 
 ### Added

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Andriichuk\DbQuerySniffer\Tests;
 
 use Andriichuk\DbQuerySniffer\DbQuerySnifferServiceProvider;
+use Monolog\Handler\NullHandler;
 use Orchestra\Testbench\TestCase as Orchestra;
 
 abstract class TestCase extends Orchestra
@@ -16,7 +17,7 @@ abstract class TestCase extends Orchestra
         ];
     }
 
-    protected function getEnvironmentSetUp($app): void
+    protected function defineEnvironment($app): void
     {
         $app['config']->set('database.default', 'testing');
         $app['config']->set('database.connections.testing', [
@@ -31,11 +32,13 @@ abstract class TestCase extends Orchestra
         $app['config']->set('db-query-sniffer', $config);
 
         $app['config']->set('logging.channels.db', [
-            'driver' => 'null',
+            'driver' => 'monolog',
+            'handler' => NullHandler::class,
         ]);
 
         $app['config']->set('logging.channels.redis', [
-            'driver' => 'null',
+            'driver' => 'monolog',
+            'handler' => NullHandler::class,
         ]);
     }
 }

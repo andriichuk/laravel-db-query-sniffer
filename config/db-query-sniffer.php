@@ -26,6 +26,9 @@ return [
     */
     'environments' => ['local'],
 
+    /* Add request IDs, methods, and paths to HTTP query logs. */
+    'request_context' => true,
+
     /*
     |--------------------------------------------------------------------------
     | Database Query Logging
